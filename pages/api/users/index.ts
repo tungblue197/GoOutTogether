@@ -20,7 +20,7 @@ const setInitUserValue = (value: User) => {
     value.id = uuidv4();
 }
 
-export default async function (req: NextApiRequest, res: NextApiResponse<Data>) {
+export default async function handler (req: NextApiRequest, res: NextApiResponse<Data>) {
     try {
         if (req.method === 'POST') {
             const user = req.body as User;

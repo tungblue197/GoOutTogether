@@ -15,7 +15,7 @@ export interface IAvatarProps {
 const Avatar: React.FC<IAvatarProps> = ({ size = 'md' }) => {
 
     return (
-        <Image className='rounded-full cursor-poiter' src={images.user} width={sizes[size]} height={sizes[size]} />
+        <Image className='rounded-full cursor-poiter' src={images.user} alt='avatar' width={sizes[size]} height={sizes[size]} />
     )
 }
 

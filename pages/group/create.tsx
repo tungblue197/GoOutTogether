@@ -87,7 +87,7 @@ const Create: NextPage = () => {
                                     <option value={20}>20 Phút</option>
                                 </select>
                                 <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                    <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                                    <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
                                 </div>
                             </div>
                         </div>
@@ -102,7 +102,7 @@ const Create: NextPage = () => {
                                     <ul className="flex flex-col px-2 py-1">
                                         {
                                             locations.map((item, index) => (
-                                                <li className='flex justify-between my-1 text-blue-400'>
+                                                <li key={item.id} className='flex justify-between my-1 text-blue-400'>
                                                     <span className="text-sm">
                                                         {index + 1}. {item.place_name}
                                                     </span>

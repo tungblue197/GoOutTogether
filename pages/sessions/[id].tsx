@@ -38,7 +38,6 @@ export default function Session({
             router.push('/');
             localStorage.setItem('prePath', getSessionPage(group.id));
         }
-     
     }, []);
 
     const connect = () => {

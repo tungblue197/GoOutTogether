@@ -26,7 +26,7 @@ const setInitValue = (value: Group) => {
 }
 
 
-export default async function (req: NextApiRequest, res: NextApiResponse<Data>) {
+export default async  function handler (req: NextApiRequest, res: NextApiResponse<Data>) {
     try {
         if (req.method !== 'POST') {
             res.json({ message: 'API notfound' });
