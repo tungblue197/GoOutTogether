@@ -33,6 +33,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse<Data>) 
         }
         const { uid } = req.headers;
         let value = req.body as Group;
+        console.log('value of post : ,', value);
         await groupSchema.validate(req.body);
         const insertQuery = `insert into sgroup (id, "createdBy", "createdTime", "timeOut", title, content, locations) values($1, $2, $3, $4, $5, $6, $7)`;
         setInitValue(value);
@@ -47,6 +48,7 @@ export default async function (req: NextApiRequest, res: NextApiResponse<Data>) 
         res.json({ message: 'insert false' });
 
     } catch (error) {
+        console.log('error here : ', error);
         res.json({ message: error.message + 'hello' });
     }
 

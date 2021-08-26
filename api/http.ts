@@ -10,12 +10,12 @@ const http = axios.create({
 });
 
 http.interceptors.request.use((configs) => {
-    // const uId = localStorage.getItem('uId');
-    // if(uId) {
-    //     configs.headers = {
-    //         uId
-    //     }
-    // }
+    const uId = localStorage.getItem('uId');
+    if(uId) {
+        configs.headers = {
+            uId
+        }
+    }
     
     return configs;
 });

@@ -14,6 +14,7 @@ import { useMemo } from 'react';
 import http from 'api/http';
 import { getSessionPage } from 'constants/urls';
 
+
 const Create: NextPage = () => {
 
     const router = useRouter()
@@ -49,10 +50,12 @@ const Create: NextPage = () => {
         }
         return 1;
     }, [formData.timeOut]);
+    
     const { isLoading, mutate } = useMutation(createGroup, {
         onSuccess: (data: any) => {
             const { extra: { id }} = data;
             router.push(getSessionPage(id));
+            localStorage.setItem('prePath', '/group/create');
         }
     })
 

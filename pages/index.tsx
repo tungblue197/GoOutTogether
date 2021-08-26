@@ -40,8 +40,8 @@ const Home: NextPage = () => {
         const { extra: { id } } = data;
         localStorage.setItem('uId', id);
         router.push(urls.GROUP_CREATE);
+        localStorage.setItem('prePath', '/');
       }
-      // alert(data);
       console.log('success : ', data);
     },
     onError: err => {
