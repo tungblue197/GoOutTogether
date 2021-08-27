@@ -21,6 +21,7 @@ import {  NotificationManager } from 'react-notifications';
 import {NotificationContainer } from 'react-notifications';
 import { useQuery } from 'react-query';
 import { useMemo } from 'react';
+import { serverUrl } from 'configs/server'
 
 export default function Session({
     group
@@ -32,9 +33,10 @@ export default function Session({
     const [currentVotes, setCurrentVotes] = useState<any[]>([]);
     const socketRef = useRef<Socket>();
     const [timer, setTimer] = useState(0);
+    
   
     useEffect(() => {
-
+        console.log(serverUrl, 'serverUrl')
         connect();
         if(!checkLogin()){
             router.push('/');
@@ -45,7 +47,7 @@ export default function Session({
 
 
     const connect = () => {
-        const socket = socketRef.current = io('http://localhost:8000');
+        const socket = socketRef.current = io('https://goouttogether-server.herokuapp.com/');
         const uId = localStorage.getItem('uId');
         socket.on('connect', () => {
 
