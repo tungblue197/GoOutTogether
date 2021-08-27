@@ -17,22 +17,24 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRef } from 'react';
 import { checkLogin } from 'helpers/auth'
 import { useCallback } from 'react';
+import {  NotificationManager } from 'react-notifications';
+import {NotificationContainer } from 'react-notifications';
+import { useQuery } from 'react-query';
+import { useMemo } from 'react';
+
 export default function Session({
     group
 }: InferGetStaticPropsType<typeof getStaticProps>) {
     const router = useRouter();
     const locations = JSON.parse(group.locations);
     const [usersJoined, setUsersJoined] = useState<User[]>([]);
+    const [winner, setWinner] = useState<any>();
     const [currentVotes, setCurrentVotes] = useState<any[]>([]);
     const socketRef = useRef<Socket>();
-    const {countdown, start, reset, pause, isRunning} = useCountdownTimer({
-        timer: 30 * 1000,
-        onExpire: () => {
-            pause();
-        }
-    });
+    const [timer, setTimer] = useState(0);
+  
     useEffect(() => {
-        start();
+
         connect();
         if(!checkLogin()){
             router.push('/');
@@ -40,49 +42,74 @@ export default function Session({
         }
     }, []);
 
+
+
     const connect = () => {
-        const socket = socketRef.current = io();
-        socket.emit('join-vote', { uId: localStorage.getItem('uId'), groupId: group.Id});
-        socket.on("connect", () => {
+        const socket = socketRef.current = io('http://localhost:8000');
+        const uId = localStorage.getItem('uId');
+        socket.on('connect', () => {
 
-            socket.on('join-vote-success', ({ group }) => {
-                setUsersJoined(group);
+            //--> group and count
+            socket.emit('join-group', { uId, gId: group.id }, ({ room}: any) => {
+                setUsersJoined(room.users);
+                setCurrentVotes(room.votes);
             });
+            // lắng nhe sự kiện join room
+            socket.on('user-joined-room', ({ user } : any) => {
+                //thông báo cho tất cả mọi người người vưa join
+                NotificationManager.info(user.name + 'was join session');
+                console.log(user, 'user join')
+                setUsersJoined([...usersJoined, user]);
+            })
 
-            socket.on('user-disconected', ({usersRemaing}) => {
-                console.log('user disconnect')
-                setUsersJoined(usersRemaing);
-            });
+            socket.on('count-down',( counter: number) => {
+                setTimer(counter);
+            })
 
-            socket.on('voted', ({ votes }) => {
+            socket.on('count-down-end', (winner) => {
+                console.log('count-down-end', winner);
+                setWinner(winner.locationId);
+            })
+
+
+            //--> vote
+
+            socket.on('voted', ({votes}): any => {
                 setCurrentVotes(votes);
             })
-          });
-        
+           
+        });
     }
-    const disconect = () => {
-        const uId = localStorage.getItem('uId');
-        const socket = socketRef.current;
-        console.log(socket, 'socket here');
-        if(socket){
-            socket.emit('user-disconect', { uId, groupId: group.id});
+   
 
-        }
-    }
-
-    const handleVote = (idPlace: string) => {
+    const handleVote = (location: string) => {
         const  socket = socketRef.current;
       
         if(socket){
             const uId = localStorage.getItem('uId');
-            socket.emit('vote', { uId, groupId: group.id, idPlace });
+            socket.emit('vote', { location , gId: group.id, uId });
         }
     }
 
+    const getNumberOfOccurrences = useCallback((idLocation: string) => {
+        let n = 0;
+        currentVotes.forEach(item => {
+            if(item.locationId === idLocation) n++;
+        });
+        return n;
+    }, [currentVotes])
 
-    
+    // const getLocationFromId = useMemo(() => { 
+    //     console.log('locations : ', locations);
+    //     if(winner) {
+    //         return locations.find((lc: any) => lc.id === winner);
+    //     }
+    //     return null;
+    // }, [winner,locations])
+
     return (
         <div className='container'>
+            <NotificationContainer />
             <div className='users-info'>
                 <h4 className='text-sm text-green-600 mb-2'>Các thành viên đang online ({ usersJoined.length})</h4>
                 {
@@ -97,7 +124,7 @@ export default function Session({
             </div>
             <div className='w-3/6 mx-auto py-4'>
                 <div className='p-4 text-center'>
-                {isRunning ? <h2 className='text-center text-red-500 text-6xl'>{countdown / 1000}s</h2> : <span className='text-sm text-red-400 text-center block'>Hết giờ địa điểm được chọn là: Hà Nội - <span className='text-blue-500'>Với 90%(5) lượt vote</span></span>}
+                {timer ? <h2 className='text-center text-red-500 text-6xl'>{timer}s</h2> : <span className='text-sm text-red-400 text-center block'>{winner} - <span className='text-blue-500'>{(100 / usersJoined.length) * getNumberOfOccurrences(winner)}% ({getNumberOfOccurrences(winner)} Votes)</span></span>}
                 </div>
                 <div className='text-center text-blue-500 mb-4 text-xl'>
                     <div>
@@ -120,12 +147,12 @@ export default function Session({
                             locations.map((item: any) => (
                                 <li key={item.id} className="location-item flex items-center justify-between pr-4 border">
                                     <label className='flex items-center py-2 px-4'>
-                                        <input type='radio' name='place' className='mr-3' value={item.id} onChange={e => {
-                                            handleVote(e.target.value);
+                                        <input type='radio' name='place' className='mr-3' value={item.id} onClick={e => {
+                                            handleVote(item);
                                         }}  />
                                         {item.place_name}
                                     </label>
-                                    
+                                    <div>{(100 / usersJoined.length) * getNumberOfOccurrences(item.id)}% ({getNumberOfOccurrences(item.id)} Votes)</div>
                                 </li>
                             ))
                         }
@@ -141,13 +168,25 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
     const { id } = ctx.params as any;
     const { data: { extra } } = await axios.get('http://localhost:3000/api/group');
     const group = extra.find((item: Group) => item.id === id);
+    if(group.win){
+        return {
+            redirect: {
+                destination: '/sessions'
+            },
+            props:{
+
+            }
+        }
+    }
     return {
         props: {
             group,
             createdUser: null
-        }
+        },
     }
 }
+
+
 
 export const getStaticPaths: GetStaticPaths = async (ctx) => {
 

@@ -5,9 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "node ./server.js",
-    "lint": "next lint",
-    "serve": "node ./server.js"
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
@@ -17,6 +16,7 @@
     "@types/express": "^4.17.13",
     "@types/pg": "^8.6.1",
     "@types/react-modal": "^3.12.1",
+    "@types/react-query": "^1.2.9",
     "@types/uuid": "^8.3.1",
     "axios": "^0.21.1",
     "express": "^4.17.1",
@@ -28,6 +28,7 @@
     "react-loading": "^2.0.3",
     "react-map-gl": "^6.1.16",
     "react-modal": "^3.14.3",
+    "react-notifications": "^1.7.2",
     "react-query": "^3.21.0",
     "reactjs-popup": "^2.0.5",
     "socket.io": "^4.1.3",
