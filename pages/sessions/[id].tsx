@@ -7,7 +7,7 @@ import React from 'react';
 import TextInput from 'components/input';
 import { getSessionPage } from 'constants/urls'
 import Button from 'components/button';
-import {useCountdownTimer} from 'use-countdown-timer';
+import { useCountdownTimer } from 'use-countdown-timer';
 import { io, Socket } from 'socket.io-client';
 import { useEffect } from 'react';
 import { useState } from 'react';
@@ -17,8 +17,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRef } from 'react';
 import { checkLogin } from 'helpers/auth'
 import { useCallback } from 'react';
-import {  NotificationManager } from 'react-notifications';
-import {NotificationContainer } from 'react-notifications';
+import { NotificationManager } from 'react-notifications';
+import { NotificationContainer } from 'react-notifications';
 import { useQuery } from 'react-query';
 import { useMemo } from 'react';
 import { serverUrl } from 'configs/server'
@@ -33,12 +33,11 @@ export default function Session({
     const [currentVotes, setCurrentVotes] = useState<any[]>([]);
     const socketRef = useRef<Socket>();
     const [timer, setTimer] = useState(0);
-    
-  
+
+
     useEffect(() => {
-        console.log(serverUrl, 'serverUrl')
         connect();
-        if(!checkLogin()){
+        if (!checkLogin()) {
             router.push('/');
             localStorage.setItem('prePath', getSessionPage(group.id));
         }
@@ -47,24 +46,23 @@ export default function Session({
 
 
     const connect = () => {
-        const socket = socketRef.current = io('https://goouttogether-server.herokuapp.com/');
+        const socket = socketRef.current = io(serverUrl);
         const uId = localStorage.getItem('uId');
         socket.on('connect', () => {
 
             //--> group and count
-            socket.emit('join-group', { uId, gId: group.id }, ({ room}: any) => {
+            socket.emit('join-group', { uId, gId: group.id }, ({ room }: any) => {
                 setUsersJoined(room.users);
                 setCurrentVotes(room.votes);
             });
             // lắng nhe sự kiện join room
-            socket.on('user-joined-room', ({ user } : any) => {
+            socket.on('user-joined-room', ({ user }: any) => {
                 //thông báo cho tất cả mọi người người vưa join
                 NotificationManager.info(user.name + 'was join session');
-                console.log(user, 'user join')
                 setUsersJoined([...usersJoined, user]);
             })
 
-            socket.on('count-down',( counter: number) => {
+            socket.on('count-down', (counter: number) => {
                 setTimer(counter);
             })
 
@@ -76,27 +74,27 @@ export default function Session({
 
             //--> vote
 
-            socket.on('voted', ({votes}): any => {
+            socket.on('voted', ({ votes }): any => {
                 setCurrentVotes(votes);
             })
-           
+
         });
     }
-   
+
 
     const handleVote = (location: string) => {
-        const  socket = socketRef.current;
-      
-        if(socket){
+        const socket = socketRef.current;
+
+        if (socket) {
             const uId = localStorage.getItem('uId');
-            socket.emit('vote', { location , gId: group.id, uId });
+            socket.emit('vote', { location, gId: group.id, uId });
         }
     }
 
     const getNumberOfOccurrences = useCallback((idLocation: string) => {
         let n = 0;
         currentVotes.forEach(item => {
-            if(item.locationId === idLocation) n++;
+            if (item.locationId === idLocation) n++;
         });
         return n;
     }, [currentVotes])
@@ -113,12 +111,12 @@ export default function Session({
         <div className='container'>
             <NotificationContainer />
             <div className='users-info'>
-                <h4 className='text-sm text-green-600 mb-2'>Các thành viên đang online ({ usersJoined.length})</h4>
+                <h4 className='text-sm text-green-600 mb-2'>Các thành viên đang online ({usersJoined.length})</h4>
                 {
                     <ul className='users-info__list'>
                         {
                             usersJoined.map((user: User) => {
-                                return <li key={user.id} className='users-info__item'><FontAwesomeIcon  icon={faCircle} className='text-green-500 mr-2' fontSize={10} />{user.name}</li>
+                                return <li key={user.id} className='users-info__item'><FontAwesomeIcon icon={faCircle} className='text-green-500 mr-2' fontSize={10} />{user.name}</li>
                             })
                         }
                     </ul>
@@ -126,7 +124,7 @@ export default function Session({
             </div>
             <div className='w-3/6 mx-auto py-4'>
                 <div className='p-4 text-center'>
-                {timer ? <h2 className='text-center text-red-500 text-6xl'>{timer}s</h2> : <span className='text-sm text-red-400 text-center block'>{winner} - <span className='text-blue-500'>{(100 / usersJoined.length) * getNumberOfOccurrences(winner)}% ({getNumberOfOccurrences(winner)} Votes)</span></span>}
+                    {timer ? <h2 className='text-center text-red-500 text-6xl'>{timer}s</h2> : <span className='text-sm text-red-400 text-center block'>{winner} - <span className='text-blue-500'>{(100 / usersJoined.length) * getNumberOfOccurrences(winner)}% ({getNumberOfOccurrences(winner)} Votes)</span></span>}
                 </div>
                 <div className='text-center text-blue-500 mb-4 text-xl'>
                     <div>
@@ -151,7 +149,7 @@ export default function Session({
                                     <label className='flex items-center py-2 px-4'>
                                         <input type='radio' name='place' className='mr-3' value={item.id} onClick={e => {
                                             handleVote(item);
-                                        }}  />
+                                        }} />
                                         {item.place_name}
                                     </label>
                                     <div>{(100 / usersJoined.length) * getNumberOfOccurrences(item.id)}% ({getNumberOfOccurrences(item.id)} Votes)</div>
@@ -170,12 +168,12 @@ export const getStaticProps: GetStaticProps = async (ctx) => {
     const { id } = ctx.params as any;
     const { data: { extra } } = await axios.get('http://localhost:3000/api/group');
     const group = extra.find((item: Group) => item.id === id);
-    if(group.win){
+    if (group.win) {
         return {
             redirect: {
                 destination: '/sessions'
             },
-            props:{
+            props: {
 
             }
         }

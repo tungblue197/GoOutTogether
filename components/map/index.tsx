@@ -116,7 +116,7 @@ const Map: React.FC<IMapProps> = ({ onLocationsChanged, p_locations, pickOnce = 
                     {pickingLocations?.length ? pickingLocations.map((item, i) => <Marker key={item.center[0].toString() + item.center[1].toString()} longitude={item.center[0]} latitude={item.center[1]} >
                         <div className='location-marker'>
                             <span>{i + 1}</span>
-                            <Image src={images.locationIcon} width={36} height={36} />
+                            <Image src={images.locationIcon} width={36} height={36} alt='pick'/>
                         </div>
                     </Marker>) : null}
                 </ReactMapGL>

@@ -1,8 +1,8 @@
 import Button from 'components/button'
-import { GetServerSidePropsContext, InferGetServerSidePropsType, GetStaticPaths } from 'next'
+import { NextPage } from 'next';
 import { useRouter } from 'next/router'
 
-export default function indexPage() {
+ const Secction :NextPage  = () =>{
     const router = useRouter();
     return (
         <div className='container mt-8'>
@@ -15,4 +15,6 @@ export default function indexPage() {
         </div>
     )
 }
+
+export default Secction;
 
